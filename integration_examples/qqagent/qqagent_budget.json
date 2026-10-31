@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "qqagent_budget",
+  "description": "QQAgent real application offline regression",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 3000,
+    "window_ms": 60000,
+    "max_messages_per_window": 6,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "m0",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m1",
+      "type": "message",
+      "at_ms": 3000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m2",
+      "type": "message",
+      "at_ms": 6000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m3",
+      "type": "message",
+      "at_ms": 9000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m4",
+      "type": "message",
+      "at_ms": 12000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m5",
+      "type": "message",
+      "at_ms": 15000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m6",
+      "type": "message",
+      "at_ms": 18000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "before_window",
+      "type": "message",
+      "at_ms": 59999,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "window_boundary",
+      "type": "message",
+      "at_ms": 60000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "sixth_allowed",
+      "after_event": "m5",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 1,
+      "event_id": "m5"
+    },
+    {
+      "id": "seventh_blocked",
+      "after_event": "m6",
+      "type": "decision_field_equals",
+      "event_id": "m6",
+      "field": "reason",
+      "expected": "reply_rate_limit"
+    },
+    {
+      "id": "seventh_silent",
+      "after_event": "m6",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 0,
+      "event_id": "m6"
+    },
+    {
+      "id": "before_left_boundary",
+      "after_event": "before_window",
+      "type": "decision_field_equals",
+      "event_id": "before_window",
+      "field": "reason",
+      "expected": "reply_rate_limit"
+    },
+    {
+      "id": "left_boundary_recovers",
+      "after_event": "window_boundary",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 1,
+      "event_id": "window_boundary"
+    },
+    {
+      "id": "successful_outputs",
+      "after_event": "window_boundary",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 7
+    }
+  ]
+}

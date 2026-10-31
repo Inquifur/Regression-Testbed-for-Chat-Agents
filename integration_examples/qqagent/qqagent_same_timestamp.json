@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "qqagent_same_timestamp",
+  "description": "依据 Runner 文件顺序与 ContextBuffer 同步append；普通消息不启用主动模型，拦截输入也保留，不排序ID。",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 3000,
+    "window_ms": 60000,
+    "max_messages_per_window": 100,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "z_first",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": []
+    },
+    {
+      "id": "a_second",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "blocked",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "model_sees_prior_input",
+      "after_event": "a_second",
+      "type": "model_context_contains",
+      "event_id": "a_second",
+      "message_id": "z_first"
+    },
+    {
+      "id": "first_reply",
+      "after_event": "a_second",
+      "type": "output_count",
+      "event_id": "a_second",
+      "group_id": "g1",
+      "expected": 1
+    },
+    {
+      "id": "blocked_reason",
+      "after_event": "blocked",
+      "type": "decision_field_equals",
+      "event_id": "blocked",
+      "field": "reason",
+      "expected": "reply_cooldown"
+    },
+    {
+      "id": "blocked_stored",
+      "after_event": "blocked",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "blocked"
+    }
+  ]
+}

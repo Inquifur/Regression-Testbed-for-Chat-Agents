@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "qqagent_topic_ttl_exact",
+  "description": "依据 ContextBuffer.conversation: timestamp <= cutoff 被排除；观察临时话题线索，不删除原缓存。独立验证179/180秒；输入时间戳单位为整秒。",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 3000,
+    "window_ms": 60000,
+    "max_messages_per_window": 100,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "a",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "Rust 编译工具链配置讨论",
+      "mentions": []
+    },
+    {
+      "id": "probe",
+      "type": "message",
+      "at_ms": 180000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "这个方案还需要什么材料",
+      "mentions": [],
+      "reply_to": "a"
+    }
+  ],
+  "checks": [
+    {
+      "id": "ttl_evidence",
+      "after_event": "probe",
+      "type": "conversation_field_equals",
+      "event_id": "probe",
+      "field": "evidence",
+      "expected": "explicit_quote_expired"
+    },
+    {
+      "id": "ttl_membership",
+      "after_event": "probe",
+      "type": "conversation_context_excludes",
+      "event_id": "probe",
+      "message_id": "a"
+    },
+    {
+      "id": "buffer_still_keeps_a",
+      "after_event": "probe",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "a"
+    },
+    {
+      "id": "no_output",
+      "after_event": "probe",
+      "type": "output_count",
+      "event_id": "probe",
+      "group_id": "g1",
+      "expected": 0
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "window_left_boundary",
+  "description": "窗口左边界不包含旧输出，被拦截输入不消耗额度",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 0,
+    "window_ms": 10,
+    "max_messages_per_window": 2,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "m1",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "第一条",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m2",
+      "type": "message",
+      "at_ms": 5,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "第二条",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m3",
+      "type": "message",
+      "at_ms": 9,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "额度已满",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m4",
+      "type": "message",
+      "at_ms": 10,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "第一条恰好离开窗口",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "m5",
+      "type": "message",
+      "at_ms": 15,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "第二条恰好离开窗口",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "before_boundary_blocked",
+      "after_event": "m3",
+      "type": "decision_field_equals",
+      "event_id": "m3",
+      "field": "reason",
+      "expected": "rate_limit"
+    },
+    {
+      "id": "left_boundary_sent",
+      "after_event": "m4",
+      "type": "output_count",
+      "group_id": "g1",
+      "event_id": "m4",
+      "expected": 1
+    },
+    {
+      "id": "next_boundary_sent",
+      "after_event": "m5",
+      "type": "output_count",
+      "group_id": "g1",
+      "event_id": "m5",
+      "expected": 1
+    },
+    {
+      "id": "only_outputs_count",
+      "after_event": "m5",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 4
+    }
+  ]
+}

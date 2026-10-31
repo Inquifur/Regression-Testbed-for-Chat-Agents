@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "qqagent_context_isolation",
+  "description": "QQAgent real application offline regression",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 3000,
+    "window_ms": 60000,
+    "max_messages_per_window": 6,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "a",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "普通测试消息",
+      "mentions": []
+    },
+    {
+      "id": "b",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g2",
+      "user_id": "u1",
+      "text": "普通测试消息",
+      "mentions": []
+    },
+    {
+      "id": "advance",
+      "type": "advance",
+      "at_ms": 180000
+    }
+  ],
+  "checks": [
+    {
+      "id": "a_present",
+      "after_event": "b",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "a"
+    },
+    {
+      "id": "b_present",
+      "after_event": "b",
+      "type": "context_contains",
+      "group_id": "g2",
+      "message_id": "b"
+    },
+    {
+      "id": "a_not_in_g2",
+      "after_event": "b",
+      "type": "context_excludes",
+      "group_id": "g2",
+      "message_id": "a"
+    },
+    {
+      "id": "b_not_in_g1",
+      "after_event": "b",
+      "type": "context_excludes",
+      "group_id": "g1",
+      "message_id": "b"
+    },
+    {
+      "id": "real_buffer_count_not_ttl",
+      "after_event": "advance",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "a"
+    },
+    {
+      "id": "no_proactive_from_advance",
+      "after_event": "advance",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 0
+    }
+  ]
+}

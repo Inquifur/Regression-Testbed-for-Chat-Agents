@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "demo_boundary_minus",
+  "description": "正确 Demo 冷却边界套件，故障运行保持预期不变。",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 3000,
+    "window_ms": 60000,
+    "max_messages_per_window": 100,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "first",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "probe",
+      "type": "message",
+      "at_ms": 2999,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "zero_is_not_unsent",
+      "after_event": "first",
+      "type": "output_count",
+      "event_id": "first",
+      "group_id": "g1",
+      "expected": 1
+    },
+    {
+      "id": "probe_sent",
+      "after_event": "probe",
+      "type": "output_count",
+      "event_id": "probe",
+      "group_id": "g1",
+      "expected": 0
+    },
+    {
+      "id": "probe_reason",
+      "after_event": "probe",
+      "type": "decision_field_equals",
+      "event_id": "probe",
+      "field": "reason",
+      "expected": "cooldown"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "context_isolation",
+  "description": "同一时刻按文件顺序处理，各群上下文互不泄漏",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 0,
+    "window_ms": 60000,
+    "max_messages_per_window": 10,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "a",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "甲群普通消息"
+    },
+    {
+      "id": "b",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g2",
+      "user_id": "u1",
+      "text": "乙群 @",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "g1_keeps_a",
+      "after_event": "b",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "a"
+    },
+    {
+      "id": "g2_excludes_a",
+      "after_event": "b",
+      "type": "context_excludes",
+      "group_id": "g2",
+      "message_id": "a"
+    },
+    {
+      "id": "g1_excludes_b",
+      "after_event": "b",
+      "type": "context_excludes",
+      "group_id": "g1",
+      "message_id": "b"
+    },
+    {
+      "id": "g2_keeps_b",
+      "after_event": "b",
+      "type": "context_contains",
+      "group_id": "g2",
+      "message_id": "b"
+    },
+    {
+      "id": "no_cross_group_context",
+      "after_event": "b",
+      "type": "decision_field_equals",
+      "event_id": "b",
+      "field": "selected_context_message_id",
+      "expected": null
+    },
+    {
+      "id": "g2_sent",
+      "after_event": "b",
+      "type": "output_count",
+      "group_id": "g2",
+      "event_id": "b",
+      "expected": 1
+    }
+  ]
+}

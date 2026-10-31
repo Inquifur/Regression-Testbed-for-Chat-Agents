@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "ordinary_context",
+  "description": "普通消息只进入上下文，不发言",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 0,
+    "window_ms": 60000,
+    "max_messages_per_window": 10,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "m1",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "大家下午好"
+    }
+  ],
+  "checks": [
+    {
+      "id": "silent",
+      "after_event": "m1",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 0
+    },
+    {
+      "id": "not_addressed",
+      "after_event": "m1",
+      "type": "decision_field_equals",
+      "event_id": "m1",
+      "field": "reason",
+      "expected": "not_addressed"
+    },
+    {
+      "id": "stored",
+      "after_event": "m1",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "m1"
+    }
+  ]
+}

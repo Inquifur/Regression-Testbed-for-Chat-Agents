@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "id": "qqagent_wrong_boundary",
+  "description": "故意失败：将3000毫秒边界的输出数量预期从1改成0，用于验证失败检测",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 3000,
+    "window_ms": 60000,
+    "max_messages_per_window": 6,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "normal",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "普通测试消息",
+      "mentions": []
+    },
+    {
+      "id": "first",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "inside",
+      "type": "message",
+      "at_ms": 2999,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "boundary",
+      "type": "message",
+      "at_ms": 3000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "other",
+      "type": "message",
+      "at_ms": 3000,
+      "group_id": "g2",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "ordinary_silent",
+      "after_event": "normal",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 0
+    },
+    {
+      "id": "ordinary_stored",
+      "after_event": "normal",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "normal"
+    },
+    {
+      "id": "first_sent",
+      "after_event": "first",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 1,
+      "event_id": "first"
+    },
+    {
+      "id": "cooldown_blocks",
+      "after_event": "inside",
+      "type": "decision_field_equals",
+      "event_id": "inside",
+      "field": "reason",
+      "expected": "reply_cooldown"
+    },
+    {
+      "id": "inside_silent",
+      "after_event": "inside",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 0,
+      "event_id": "inside"
+    },
+    {
+      "id": "boundary_sent",
+      "after_event": "boundary",
+      "type": "output_count",
+      "group_id": "g1",
+      "expected": 0,
+      "event_id": "boundary"
+    },
+    {
+      "id": "ack_observed",
+      "after_event": "boundary",
+      "type": "decision_field_equals",
+      "event_id": "boundary",
+      "field": "reason",
+      "expected": "onebot_confirmed"
+    },
+    {
+      "id": "other_group_independent",
+      "after_event": "other",
+      "type": "output_count",
+      "group_id": "g2",
+      "expected": 1,
+      "event_id": "other"
+    },
+    {
+      "id": "blocked_input_stored",
+      "after_event": "other",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "inside"
+    },
+    {
+      "id": "no_cross_group",
+      "after_event": "other",
+      "type": "context_excludes",
+      "group_id": "g2",
+      "message_id": "first"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "mention_reply",
+  "description": "@ 消息进入回应流程，产生一条固定回复",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 0,
+    "window_ms": 60000,
+    "max_messages_per_window": 10,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "m1",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "你好",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "one_output",
+      "after_event": "m1",
+      "type": "output_count",
+      "group_id": "g1",
+      "event_id": "m1",
+      "expected": 1
+    },
+    {
+      "id": "allowed",
+      "after_event": "m1",
+      "type": "decision_field_equals",
+      "event_id": "m1",
+      "field": "should_reply",
+      "expected": true
+    },
+    {
+      "id": "replied",
+      "after_event": "m1",
+      "type": "decision_field_equals",
+      "event_id": "m1",
+      "field": "reason",
+      "expected": "replied"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "expired_reply_fallback",
+  "description": "引用消息已过期时，回退到同群最近的有效输入",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 0,
+    "window_ms": 60000,
+    "max_messages_per_window": 10,
+    "context_ttl_ms": 100
+  },
+  "events": [
+    {
+      "id": "old",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "过期的引用目标"
+    },
+    {
+      "id": "recent",
+      "type": "message",
+      "at_ms": 75,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "仍有效的最近消息"
+    },
+    {
+      "id": "ask",
+      "type": "message",
+      "at_ms": 100,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "引用旧消息",
+      "mentions": [
+        "bot"
+      ],
+      "reply_to": "old"
+    }
+  ],
+  "checks": [
+    {
+      "id": "old_expired",
+      "after_event": "ask",
+      "type": "context_excludes",
+      "group_id": "g1",
+      "message_id": "old"
+    },
+    {
+      "id": "recent_kept",
+      "after_event": "ask",
+      "type": "context_contains",
+      "group_id": "g1",
+      "message_id": "recent"
+    },
+    {
+      "id": "fallback_to_recent",
+      "after_event": "ask",
+      "type": "decision_field_equals",
+      "event_id": "ask",
+      "field": "selected_context_message_id",
+      "expected": "recent"
+    },
+    {
+      "id": "sent",
+      "after_event": "ask",
+      "type": "output_count",
+      "group_id": "g1",
+      "event_id": "ask",
+      "expected": 1
+    }
+  ]
+}

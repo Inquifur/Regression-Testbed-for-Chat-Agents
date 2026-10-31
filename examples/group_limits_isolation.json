@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "group_limits_isolation",
+  "description": "冷却和窗口配额按群隔离",
+  "bot_config": {
+    "bot_id": "bot",
+    "cooldown_ms": 100,
+    "window_ms": 1000,
+    "max_messages_per_window": 1,
+    "context_ttl_ms": 180000
+  },
+  "events": [
+    {
+      "id": "a",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "甲群发送",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "b",
+      "type": "message",
+      "at_ms": 0,
+      "group_id": "g2",
+      "user_id": "u1",
+      "text": "乙群也可以发送",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "c",
+      "type": "message",
+      "at_ms": 1,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "甲群冷却中",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "d",
+      "type": "message",
+      "at_ms": 100,
+      "group_id": "g2",
+      "user_id": "u1",
+      "text": "乙群冷却已到但额度仍满",
+      "mentions": [
+        "bot"
+      ]
+    },
+    {
+      "id": "e",
+      "type": "message",
+      "at_ms": 1000,
+      "group_id": "g1",
+      "user_id": "u1",
+      "text": "甲群窗口已到边界",
+      "mentions": [
+        "bot"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "g1_sent",
+      "after_event": "a",
+      "type": "output_count",
+      "group_id": "g1",
+      "event_id": "a",
+      "expected": 1
+    },
+    {
+      "id": "g2_sent_independently",
+      "after_event": "b",
+      "type": "output_count",
+      "group_id": "g2",
+      "event_id": "b",
+      "expected": 1
+    },
+    {
+      "id": "cooldown_first",
+      "after_event": "c",
+      "type": "decision_field_equals",
+      "event_id": "c",
+      "field": "reason",
+      "expected": "cooldown"
+    },
+    {
+      "id": "window_after_cooldown",
+      "after_event": "d",
+      "type": "decision_field_equals",
+      "event_id": "d",
+      "field": "reason",
+      "expected": "rate_limit"
+    },
+    {
+      "id": "g1_recovers",
+      "after_event": "e",
+      "type": "output_count",
+      "group_id": "g1",
+      "event_id": "e",
+      "expected": 1
+    }
+  ]
+}
